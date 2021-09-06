@@ -167,11 +167,10 @@ void EQUwUAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
     auto chainSettings = getChainSettings(apvts);
 
-    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(
-        getSampleRate(),
-        chainSettings.peakFreq,
-        chainSettings.peakQuality,
-        juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                                                chainSettings.peakFreq,
+                                                                                chainSettings.peakQuality,
+                                                                                juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
 
     *leftChain.get<ChainPosition::Peak>().coefficients = *peakCoefficients;
     *rightChain.get<ChainPosition::Peak>().coefficients = *peakCoefficients;
