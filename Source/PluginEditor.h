@@ -50,7 +50,7 @@ public:
         to trigger an AsyncUpdater or ChangeBroadcaster which you can respond to later on the
         message thread.
     */
-    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
+    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override { }
 
     void timerCallback() override;
 
@@ -59,7 +59,7 @@ private:
     // access the processor object that created it.
     EQUwUAudioProcessor& audioProcessor;
 
-    juce::Atomic<bool> parametersChanged{ false };
+    juce::Atomic<bool> parametersChanged { false };
 
     CustomRotarySlider peakFreqSlider,
                        peakGainSlider,

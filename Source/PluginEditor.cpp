@@ -28,11 +28,24 @@ EQUwUAudioProcessorEditor::EQUwUAudioProcessorEditor (EQUwUAudioProcessor& p)
         addAndMakeVisible(comp);
     }
 
-    setSize (600, 400);
+    const auto& params = audioProcessor.getParameters();
+    for (auto param : params)
+    {
+        param->addListener(this);
+    }
+
+    startTimerHz(60);
+
+    setSize(600, 400);
 }
 
 EQUwUAudioProcessorEditor::~EQUwUAudioProcessorEditor()
 {
+    const auto& params = audioProcessor.getParameters();
+    for (auto param : params)
+    {
+        param->removeListener(this);
+    }
 }
 
 //==============================================================================
@@ -62,25 +75,25 @@ void EQUwUAudioProcessorEditor::paint (juce::Graphics& g)
         double mag = 1.f;
         auto freq = mapToLog10(double(i) / double(w), 20.0, 20000.0);
 
-        if (!monoChain.isBypassed<ChainPosition::Peak>())
+        if (! monoChain.isBypassed<ChainPosition::Peak>())
             mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
 
-        if (!lowcut.isBypassed<0>())
+        if (! lowcut.isBypassed<0>())
             mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<1>())
+        if (! lowcut.isBypassed<1>())
             mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<2>())
+        if (! lowcut.isBypassed<2>())
             mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<3>())
+        if (! lowcut.isBypassed<3>())
             mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
 
-        if (!highcut.isBypassed<0>())
+        if (! highcut.isBypassed<0>())
             mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
         if (!highcut.isBypassed<1>())
             mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<2>())
+        if (! highcut.isBypassed<2>())
             mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<3>())
+        if (! highcut.isBypassed<3>())
             mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
 
         mags[i] == Decibels::gainToDecibels(mag);
@@ -136,17 +149,18 @@ void EQUwUAudioProcessorEditor::parameterValueChanged(int parameterIndex, float 
     parametersChanged.set(true);
 }
 
-void EQUwUAudioProcessorEditor::parameterGestureChanged(int parameterIndex, bool gestureIsStarting)
-{
-
-}
-
 void EQUwUAudioProcessorEditor::timerCallback()
 {
     if (parametersChanged.compareAndSetBool(false, true))
     {
+        DBG("params changed");
         //update the monochain
+        auto chainSettings = getChainSettings(audioProcessor.apvts);
+        auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
+        updateCoefficients(monoChain.get<ChainPosition::Peak>().coefficients, peakCoefficients);
+
         //signal a repaint
+        repaint();
     }
 }
 

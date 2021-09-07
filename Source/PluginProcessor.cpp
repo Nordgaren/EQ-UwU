@@ -191,7 +191,7 @@ bool EQUwUAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* EQUwUAudioProcessor::createEditor()
 {
-    return new EQUwUAudioProcessorEditor (*this);
+    return new EQUwUAudioProcessorEditor(*this);
     //return new juce::GenericAudioProcessorEditor(*this);
 }
 
@@ -237,9 +237,9 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
 Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate)
 {
     return juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
-        chainSettings.peakFreq,
-        chainSettings.peakQuality,
-        juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
+                                                               chainSettings.peakFreq,
+                                                               chainSettings.peakQuality,
+                                                               juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
 
 }
 
@@ -249,10 +249,7 @@ void EQUwUAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings)
 
     updateCoefficients(leftChain.get<ChainPosition::Peak>().coefficients, peakCoefficients);
     updateCoefficients(rightChain.get<ChainPosition::Peak>().coefficients, peakCoefficients);
-
 }
-
-
 
 void updateCoefficients(Coefficients& old, const Coefficients& replacements)
 {
